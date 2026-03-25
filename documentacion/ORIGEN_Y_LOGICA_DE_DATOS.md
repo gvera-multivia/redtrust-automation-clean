@@ -50,19 +50,11 @@ La extracción ocurre en dos fases claramente diferenciadas:
    - `sede` (A qué portal hay que ir: Dehú, e-Notum, DGT).
    - `body_html` (El contenido del email original para parsear el expediente).
 
-### Fase 2: Extracción de Contenido Real (Browser/Robots)
-Una vez que el Dispatcher asigna la tarea a un Worker:
-1. **Robot Orquestador (`app/robot_descargas.py`)**: Recibe los datos de la Fase 1.
-2. **Parser de Email**: Extrae del `body_html` el número de expediente o identificador necesario para el portal.
-3. **Navegación (Selenium)**:
-   - Abre un navegador.
-   - Usa el `RedTrustManager` para cargar el certificado digital en el sistema.
-   - Navega a la URL de la sede (ej. `https://dehu.redsara.es/`).
-   - Busca el expediente obtenido en el paso 2.
-   - **Descarga el PDF** u obtiene los datos.
-
-### Fase 3: Extracción de Metadatos del Documento
-Para robots como el de Descargas, se usa `PDFMetadataExtractor` (`app/utils/parser/PDFMetadataExtractor.py`) que lee el interior del PDF descargado para validar que el contenido coincide con lo esperado.
+### Fase 2: Envío al Dispatcher
+Una vez que el sistema tiene los registros de la Fase 1:
+1. **Batching**: Se agrupan los registros para optimizar la carga de trabajo.
+2. **Encolado**: Se inyecta un JSON con los parámetros de los items en la `dispatcher_tasks_queue` de Redis.
+3. **Orquestación**: El Dispatcher toma este mensaje y busca el mejor worker disponible basándose en métricas de hardware y carga.
 
 ---
 
@@ -72,8 +64,8 @@ Para robots como el de Descargas, se usa `PDFMetadataExtractor` (`app/utils/pars
 | :--- | :--- | :--- |
 | **¿Quién decide el horario?** | El Scheduler | `api/scheduler.py` |
 | **¿Quién decide qué clientes?** | Consultas SQL | `database/*/queries/*.py` |
-| **¿Quién extrae del portal?** | Robots Selenium | `app/robot/*/` |
-| **¿Dónde se guarda el resultado?** | Database Manager | `database/database_manager.py` |
+| **¿Quién orquesta el envío?** | Dispatcher | `api/dispatcher.py` |
+| **¿Dónde se guarda el log de asignación?** | Database Manager | `database/database_manager.py` |
 
 ---
 
