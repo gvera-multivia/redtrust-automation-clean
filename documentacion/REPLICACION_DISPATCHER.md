@@ -12,13 +12,12 @@ El Dispatcher actúa como el orquestador inteligente del sistema. A diferencia d
 1.  **Enqueuer (`api/enqueuer.py`)**: Punto de entrada. Valida que la tarea exista y la coloca en la "cola de entrada" primaria.
 2.  **Dispatcher (`api/dispatcher.py`)**: El "cerebro". Monitorea la cola de entrada, el estado de los workers y toma decisiones de asignación.
 3.  **Redis**: Actúa como bus de datos, almacén de estado (heartbeats) y sistema de mensajería para Celery.
-4.  **Workers (`api/worker.py`)**: Ejecutores finales que reportan su salud y verifican sus asignaciones.
+4.  **Interface de Workers**: Cualquier agente capaz de reportar métricas a Redis y leer el canal de salida del Dispatcher.
 
-### Stack Tecnológico:
-- **Lenguaje**: Python 3.x
-- **Gestión de Tareas**: Celery
-- **Base de Datos/Mensajería**: Redis
-- **API**: FastAPI
+### Stack Tecnológico del Orquestador:
+- **Lenguaje**: Python 3.x (implementación actual).
+- **Gestión de Estado**: Redis (Bus de control).
+- **Base de Datos**: SQL Server (Criterios de negocio).
 
 ---
 
@@ -102,12 +101,12 @@ El Dispatcher recupera todos los workers que han enviado un heartbeat reciente y
 - **Carga Reciente**: Se penaliza a los workers que han recibido tareas recientemente para balancear.
 
 ### El Protocolo de Asignación
-Para evitar condiciones de carrera y asegurar que solo el worker elegido ejecute la tarea:
+Para evitar condiciones de carrera y asegurar la exclusividad:
 1.  El Dispatcher saca la tarea de la cola (`LPOP`).
-2.  Selecciona al mejor worker.
+2.  Selecciona al mejor worker basándose en el estado reportado en Redis.
 3.  Escribe en Redis una "reserva": `task_assignment:{task_id}` -> `worker_id`.
-4.  Envía la tarea real a través de Celery a la cola `robot_tasks`.
-5.  **Validación en el Worker**: Al recibir la tarea, el worker consulta Redis. Si el `worker_id` en la reserva NO coincide con el suyo, rechaza la tarea inmediatamente (`Reject`).
+4.  Publica la tarea al sistema de mensajería (Broker).
+5.  **Validación**: Cualquier worker que reciba la tarea debe verificar en Redis si él es el legítimo asignado antes de iniciar el procesamiento.
 
 ---
 
