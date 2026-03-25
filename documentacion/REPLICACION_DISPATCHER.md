@@ -48,7 +48,45 @@ Cuando se encola una tarea, se genera un objeto JSON con la siguiente estructura
 
 ---
 
-## 3. Mecanismo de Comunicación y Envío
+## 3. Inventario de APIs y Origen de Datos
+
+Para replicar el sistema, es crucial entender qué datos fluyen y a través de qué interfaces.
+
+### 3.1 APIs Internas (Alimentación del Dispatcher)
+El Dispatcher no recibe peticiones HTTP directamente, sino que consume de Redis. Los componentes que "alimentan" a Redis son:
+
+| Endpoint | Método | Propósito | Payload Principal |
+| :--- | :--- | :--- | :--- |
+| `/api/enqueue_task` | POST | Encolado genérico de cualquier robot. | `{"task_name": "...", "kwargs": {...}}` |
+| `/api/altas/trigger` | POST | Dispara el proceso de altas de clientes. | `{"cliente": "...", "sedes": [...]}` |
+| `/api/descargas/trigger`| POST | Dispara la descarga de notificaciones. | `{"fecha": "YYYY-MM-DD", "cliente": "..."}` |
+| `/api/matriculas-y-puntos/trigger` | POST | Consulta datos de vehículos y puntos DGT. | `{"date": "YYYY-MM-DD", "cliente": "..."}` |
+| `/api/consulta-enotum/trigger` | POST | Consulta el sistema e-Notum. | `{"cliente": "...", "fecha_a_revisar": "..."}` |
+
+### 3.2 APIs Externas (Consumo de los Robots)
+Los robots, una vez asignados por el Dispatcher, interactúan con servicios externos. El sistema utiliza dos métodos de consumo:
+
+#### A. Automatización de Navegador (Selenium/Browser)
+La mayoría de los robots (Altas, e-Notum, Sedes Judiciales) no usan APIs REST tradicionales, sino que navegan por portales web:
+- **RedTrust Cloud**: `https://redtrust.cloud/` (Gestión de certificados).
+- **Sede DGT**: `https://sede.dgt.gob.es/` (Vehículos y puntos).
+- **e-Notum**: `https://canalempresa.gencat.cat/`
+- **Comunidad de Madrid**: `https://sede.comunidad.madrid/`
+- **Sede Judicial Gencat**: `https://seujudicial.justicia.gencat.cat/`
+
+#### B. Llamadas Directas a APIs / Servicios
+Existen llamadas técnicas específicas integradas en el flujo:
+
+1.  **API de Datos de Vehículos (DGT)**:
+    - **URL**: `https://sede.dgt.gob.es/system/modules/es.trafico.dgt.sedeV5/functions/mi_dgt/componentes/service_atex_vehiculo.jsp?matricula={matricula}`
+    - **Método**: GET (vía `fetch` inyectado en el navegador).
+    - **Función**: Obtiene detalles técnicos del vehículo en formato JSON.
+2.  **SQL Server (Capa de Persistencia)**:
+    - Los robots consultan y persisten datos directamente en SQL Server mediante `DatabaseManager`, que actúa como la "API de datos" interna del negocio.
+
+---
+
+## 4. Mecanismo de Comunicación y Envío
 
 El Dispatcher utiliza un sistema de **"Push con Reserva"**.
 
@@ -73,7 +111,7 @@ Para evitar condiciones de carrera y asegurar que solo el worker elegido ejecute
 
 ---
 
-## 4. Flujo Completo del Sistema
+## 5. Flujo Completo del Sistema
 
 ```mermaid
 sequenceDiagram
@@ -102,7 +140,7 @@ sequenceDiagram
 
 ---
 
-## 5. Reimplementación en otro Stack (Propuesta)
+## 6. Reimplementación en otro Stack (Propuesta)
 
 Si quisiéramos migrar este sistema a un stack basado en **Node.js** o **Go**, estas serían las directrices:
 
@@ -122,7 +160,7 @@ Si quisiéramos migrar este sistema a un stack basado en **Node.js** o **Go**, e
 
 ---
 
-## 6. Mejoras y Optimización
+## 7. Mejoras y Optimización
 
 El sistema actual tiene algunas limitaciones que podrían mejorarse en una versión 2.0:
 
