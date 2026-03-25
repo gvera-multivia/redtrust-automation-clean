@@ -1,0 +1,66 @@
+@startuml RobotDescargas
+start
+
+:Inicializar logger y entorno (.env);
+:Instanciar RobotDescargas;
+:run();
+
+:Inicializar Excel (_initialize_excel);
+:Obtener tareas desde DB (_fetch_notifications);
+
+if (¿Hay tareas?) then (sí)
+    :Estructurar notificaciones (_structure_notifications);
+    -> json;
+    :Validar notificaciones (extract_and_validate_service_info);
+    -> Expediente and Servicios;
+    if (¿Notificaciones válidas?) then (sí)
+        :Agrupar por certificado;
+        
+        partition Certificados {
+            repeat
+            :Cargar certificado (RedTrust);
+
+            if (¿Certificado válido?) then (sí)
+                partition Notificaciones {
+                    repeat
+                    :Seleccionar notificación;
+                    :Elegir robot por sede;
+
+                    fork
+                        :Ejecutar robot (run_portal_robot_static);
+                        :Inicio de sesión en la sede;
+                        :Descargar notificacion;
+                    fork again
+                        :Aceptar certificado (run_certificate_handler_static);
+                    end fork
+
+                    :Esperar resultados de los threads;
+
+                    if (¿Éxito?) then (sí)
+                        :Procesar archivos descargados (process_files);
+                        :Renombrar y mover archivos a la carpeta de \\server-doc;
+                    else
+                        :Registrar error;
+                    endif
+
+                    :Actualizar Excel (_update_notification_excel);
+                    :Actualizar BD (_update_notification_status);
+
+                    repeatwhile (<b>¿Más notificaciones?) is (sí)
+                }
+            else
+                :Error al cargar certificado;
+            endif
+
+            repeatwhile (<b>¿Más certificados?) is (sí)
+        }
+    else
+        :Finalizar — no hay notificaciones válidas;
+    endif
+else
+    :Finalizar — sin tareas;
+endif
+
+:Finalizar Excel (_finalize_excel);
+stop
+@enduml

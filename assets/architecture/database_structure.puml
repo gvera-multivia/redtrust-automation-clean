@@ -1,0 +1,322 @@
+@startuml database_structure
+
+' Configuración del diagrama
+!theme plain
+skinparam linetype ortho
+@startuml database_structure
+
+' Configuración del diagrama
+!theme plain
+skinparam linetype ortho
+skinparam backgroundColor white
+skinparam entity {
+  BackgroundColor #E8F4FD
+  BorderColor #2E86AB
+  FontName Arial
+  FontSize 11
+}
+
+' Tabla principal - Histórico de todas las automatizaciones (según DDL SQL Server)
+entity historico_automatizaciones {
+  * execution_id : UNIQUEIDENTIFIER <<PK>>
+  --
+  * cliente : INTEGER <<NOT NULL>>
+  nif : VARCHAR(20) <<NULL>>
+  cif : VARCHAR(20) <<NULL>>
+  tipo_cliente : VARCHAR(50) <<NULL>>
+  * robot_name : VARCHAR(100) <<NOT NULL>>
+  * status : VARCHAR(20) <<NOT NULL>>
+  * sede : VARCHAR(100) <<NOT NULL>>
+  result_robot : NTEXT <<NULL>>
+  result_certificate : BIT <<NULL>>
+  execution_message : NTEXT <<NULL>>
+  * updated_by_user_id : INTEGER <<NOT NULL>>
+  * updated_by_user_name : VARCHAR(100) <<NOT NULL>>
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+' Tabla para automatización de descargas
+entity descargas_automatizaciones {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * execution_id : UNIQUEIDENTIFIER <<FK, NOT NULL>>
+  --
+  message_key : VARCHAR(255) <<NULL>>
+  fecha_descarga : DATETIME2 <<NULL>>
+  identificador : VARCHAR(100) <<NULL>>
+  expediente : VARCHAR(100) <<NULL>>
+  prev_desc : VARCHAR(3) <<NULL>>
+  filename : VARCHAR(255) <<NULL>>
+  organismo : VARCHAR(100) <<NULL>>
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+' Tabla para automatización de altas
+entity altas_automatizaciones {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * execution_id : UNIQUEIDENTIFIER <<FK, NOT NULL>>
+  --
+  action : VARCHAR(100) <<NULL>>
+  emails : NTEXT <<NULL>>
+  downloads : BIT <<NULL>>
+  notes : NTEXT <<NULL>>
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+' Tabla para informes DGT
+entity informes_dgt_automatizaciones {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * execution_id : UNIQUEIDENTIFIER <<FK, NOT NULL>>
+  --
+  nif_en_sede : VARCHAR(20) <<NULL>>
+  nombre_en_sede : VARCHAR(200) <<NULL>>
+  matriculas : INTEGER <<NULL>>
+  puntos : INTEGER <<NULL>>
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+' Tabla para matrículas extraídas de los informes DGT
+entity matriculas_extraidas {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * informe_id : INTEGER <<FK, NOT NULL>>
+  --
+  * matricula : VARCHAR(10) <<NOT NULL>>
+  matriculacion : DATE <<NULL>>
+  marca : VARCHAR(50) <<NULL>>
+  modelo : VARCHAR(100) <<NULL>>
+  combustible : VARCHAR(50) <<NULL>>
+  bastidor : VARCHAR(50) <<NULL>>
+  carburante : VARCHAR(50) <<NULL>>
+  cilindrada_cm : INTEGER <<NULL>>
+  distintivo_ambiental : VARCHAR(20) <<NULL>>
+  num_identificacion_vehiculo_nive : VARCHAR(50) <<NULL>>
+  situacion_itv : VARCHAR(50) <<NULL>>
+  caducidad_itv : DATE <<NULL>>
+  km_ultima_itv : INTEGER <<NULL>>
+  inicio_del_seguro : DATE <<NULL>>
+  aseguradora : VARCHAR(100) <<NULL>>
+  direccion : VARCHAR(255) <<NULL>>
+  codigo_postal : VARCHAR(10) <<NULL>>
+  municipio : VARCHAR(100) <<NULL>>
+  provincia : VARCHAR(50) <<NULL>>
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+' Tabla para alertas extraídas de las matrículas
+entity alertas_extraidas {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * matricula_id : INTEGER <<FK, NOT NULL>>
+  --
+  alertas_vehiculo : NTEXT <<NULL>>
+  situacion_administrativa : VARCHAR(100) <<NULL>>
+  servicio_al_que_se_destina : VARCHAR(100) <<NULL>>
+  created_at : DATETIME2
+}
+
+' Tabla para sanciones extraídas de los informes DGT
+entity sanciones_extraidas {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * informe_id : INTEGER <<FK, NOT NULL>>
+  --
+  fecha_sancion : DATE <<NULL>>
+  puntos_sancion : INTEGER <<NULL>>
+  sancion : NTEXT <<NULL>>
+  saldo_puntos_final : INTEGER <<NULL>>
+  organismo_sancionador : VARCHAR(100) <<NULL>>
+  created_at : DATETIME2
+}
+
+' Tabla para consultas automatizadas
+entity consulta_automatizaciones {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * execution_id : UNIQUEIDENTIFIER <<FK, NOT NULL>>
+  --
+  resultado : VARCHAR(100) <<NULL>>
+  notas : NTEXT <<NULL>>
+  descarga : BIT <<NULL>>
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+' Tabla para descargas de consultas
+entity descarga_consulta {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * id_consulta : INTEGER <<FK, NOT NULL>>
+  --
+  url : NTEXT <<NULL>>
+  id_notificacion : VARCHAR(50) <<NULL>>
+  asunto_notificacion : VARCHAR(50) <<NULL>>
+  organismo_notificacion : VARCHAR(50) <<NULL>>
+  fecha_notificacion : VARCHAR(50) <<NULL>>
+  descargada_notificacion : BIT <<NULL>>
+  expediente_notificacion : VARCHAR(50) <<NULL>>
+  descarga_status : VARCHAR(50) <<NULL>>
+  created_at : DATETIME2
+}
+
+' Tabla para actualizaciones automatizadas
+entity actualizaciones_automatizaciones {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * execution_id : UNIQUEIDENTIFIER <<FK, NOT NULL>>
+  --
+  estado_actualizacion : VARCHAR(50) <<NULL>>
+  notas : NTEXT <<NULL>>
+  deuda : DECIMAL(10,2) <<NULL>>
+  expediente : VARCHAR(255) <<NULL>>
+  archivo : VARCHAR(255) <<NULL>>
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+' Tabla para automatización de sede judicial
+entity sedejudicial_automatizaciones {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * execution_id : UNIQUEIDENTIFIER <<FK, NOT NULL>>
+  --
+  num_expedientes: INTEGER <<NULL>>
+  num_assenyalamientos: INTEGER <<NULL>>
+  num_justicia_gratuita : INTEGER <<NULL>>
+  
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+
+' Tabla para expedientes judiciales asociados a una sede judicial
+entity expediente_judicial {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * sedejudicial_id : UNIQUEIDENTIFIER <<FK, NOT NULL>>
+  --
+  any_expediente : INTEGER <<NULL>>
+  fecha_expediente : DATETIME2 <<NULL>>
+  organo_judicial : VARCHAR(255) <<NULL>>
+  procedimiento : VARCHAR(255) <<NULL>>
+  numero_any_seccion : VARCHAR(50) <<NULL>>
+  
+  nig : VARCHAR(50) <<NULL>>
+  ambito : VARCHAR(50) <<NULL>>
+  
+  num_demanda : VARCHAR(50) <<NULL>>
+  fecha_presentacion : DATETIME2 <<NULL>>
+  fecha_registro : DATETIME2 <<NULL>>
+
+  estado_expediente : VARCHAR(100) <<NULL>>
+  juzgado : VARCHAR(255) <<NULL>>
+  fecha_incoacion : DATETIME2 <<NULL>>
+  fase : VARCHAR(100) <<NULL>>
+  tipo_quantia : VARCHAR(100) <<NULL>>
+  importe_principal : DECIMAL(14,2) <<NULL>>
+  
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+
+' Entidad para otros procedimientos asociados a un expediente judicial
+entity otros_procedimientos_expediente {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * expediente_judicial_id : UNIQUEIDENTIFIER <<FK, NOT NULL>>
+  --
+  fecha_procedimiento : DATETIME2 <<NULL>>
+  estado_procedimiento : VARCHAR(100) <<NULL>>
+  tipo_procedimiento : VARCHAR(255) <<NULL>>
+  numero_año: VARCHAR(50) <<NULL>>
+  organo_judicial : VARCHAR(255) <<NULL>>
+}
+
+entity intervinientes_expediente {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * expediente_judicial_id : UNIQUEIDENTIFIER <<FK, NOT NULL>>
+  --
+  nombre_interviniente : VARCHAR(255) <<NULL>>
+  rol_interviniente : VARCHAR(100) <<NULL>>
+  correo_electronico : VARCHAR(255) <<NULL>>
+  direccion : VARCHAR(255) <<NULL>>
+  poblacion : VARCHAR(100) <<NULL>>
+  municipio : VARCHAR(100) <<NULL>>
+  provincia : VARCHAR(100) <<NULL>>
+  pais : VARCHAR(100) <<NULL>>
+  codigo_postal : VARCHAR(20) <<NULL>>
+  telefono : VARCHAR(50) <<NULL>>
+}
+
+entity hitos_procesales_expediente {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * expediente_judicial_id : UNIQUEIDENTIFIER <<FK, NOT NULL>>
+  --
+  fecha_hito : DATETIME2 <<NULL>>
+  descripcion_hito : NTEXT <<NULL>>
+  fecha_resolucion : DATETIME2 <<NULL>>
+  fecha_incoacion : DATETIME2 <<NULL>>
+}
+
+' Tabla para señalamientos judiciales asociados a una sede judicial
+entity señalamiento_judicial {
+  * id : UNIQUEIDENTIFIER <<PK, IDENTITY>>
+  * sedejudicial_id : UNIQUEIDENTIFIER <<FK, NOT NULL>>
+  * expediente_judicial_id : UNIQUEIDENTIFIER <<FK, NOT NULL>>
+  --
+  fecha_señalamiento : DATETIME2 <<NULL>>
+  hora_inicio : VARCHAR(10) <<NULL>>
+  hora_fin : VARCHAR(10) <<NULL>>
+  sala : VARCHAR(255) <<NULL>>
+  estado : VARCHAR(100) <<NULL>>
+  motivo_anulacion : NTEXT <<NULL>>
+  procedimiento : VARCHAR(500) <<NULL>>
+
+  created_at : DATETIME2
+  updated_at : DATETIME2
+}
+
+
+
+' Relaciones principales (1:N)
+historico_automatizaciones ||--o{ descargas_automatizaciones : "execution_id"
+historico_automatizaciones ||--o{ altas_automatizaciones : "execution_id"
+historico_automatizaciones ||--|| informes_dgt_automatizaciones : "execution_id"
+historico_automatizaciones ||--|| consulta_automatizaciones : "execution_id"
+historico_automatizaciones ||--o{ actualizaciones_automatizaciones : "execution_id"
+
+' Relaciones de informes DGT (1:N)
+informes_dgt_automatizaciones ||--o{ matriculas_extraidas : "informe_id"
+informes_dgt_automatizaciones ||--o{ sanciones_extraidas : "informe_id"
+
+' Relaciones de matrículas (1:N)
+matriculas_extraidas ||--o{ alertas_extraidas : "matricula_id"
+
+' Relaciones de consultas (1:N)
+consulta_automatizaciones ||--o{ descarga_consulta : "id_consulta"
+
+' Relaciones de sede judicial (1:N)
+historico_automatizaciones ||--o{ sedejudicial_automatizaciones : "execution_id"
+sedejudicial_automatizaciones ||--o{ expediente_judicial : "sedejudicial_id"
+expediente_judicial ||--o{ otros_procedimientos_expediente : "expediente_judicial_id"
+expediente_judicial ||--o{ intervinientes_expediente : "expediente_judicial_id"
+expediente_judicial ||--o{ hitos_procesales_expediente : "expediente_judicial_id"
+
+sedejudicial_automatizaciones ||--o{ señalamiento_judicial : "sedejudicial_id"
+expediente_judicial ||--o{ señalamiento_judicial : "expediente_judicial_id"
+
+sedejudicial_automatizaciones ||--o{ justicia_gratuita_judicial : "sedejudicial_id"
+
+
+' Notas: índices adicionales y triggers definidos en el DDL (no representados como entidades).
+' Índices recomendados: IX_* sobre claves foráneas y columnas de búsqueda (cliente, created_at, status, robot_name, matricula).
+' Triggers: trg_historico_timestamps, trg_descargas_timestamps, trg_altas_timestamps — actualizan created_at/updated_at en INSERT/UPDATE.
+
+' Tabla para registro de asignaciones de automatizaciones
+entity automations_assignment_log {
+  * id : VARCHAR(255) <<PK>>
+  cliente : VARCHAR(255) <<NULL>>
+  sede : VARCHAR(255) <<NULL>>
+  * robot_name : VARCHAR(100) <<NOT NULL>>
+  assigned_at : DATETIME2
+  * assigned_by : VARCHAR(100) <<NOT NULL>>
+}
+
+
+@enduml

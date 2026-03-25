@@ -1,0 +1,47 @@
+//********************************************************/
+//CONSTANTS
+//********************************************************/
+export const originName = "chrome"; // chrome | firefox | msedge
+export const brasilGateway = 'OPENID';
+export const brasilOpenIDGovWeb = 'sso.acesso.gov.br';
+export const brasilOpenIDCertWeb = 'certificado.sso.acesso.gov.br';
+export const INITIALIZING = "INITIALIZING";
+export const COMM = "COMM";
+export const POLICIES = "POLICIES";
+export const REGEX = "REGEX";
+export const NAV_CONTROL = "NAVIGATION CONTROL";
+export const NAV_REQUEST = "NAVIGATION REQUEST";
+export const CANCELATION = "CANCELATION REQUEST";
+export const OPENID = "OPENID";
+export const SAML = "SAML";
+export const PROTOCOL_MAPPED = "MappedSites";
+export const PROTOCOL_OPENID = "OpenId";
+export const PROTOCOL_NONE = "None";
+export const HandlingHosts = "HANDLING HOSTS";
+export const Firefox = "Firefox";
+export const SIMILARITY_THRESHOLD = 0.93;
+export const defaultVersion = 1;
+export const catchUrlVersion = 2;
+export const PolicyStatusAuthorizationEnum_Accepted = 2;
+export const PolicyActionEnum_ALLOW = "ALLOW";
+export const PolicyActionEnum_ALLOW_value = 1;
+export const PolicyActionEnum_DISALLOW = "DISALLOW";
+export const PolicyActionEnum_DISALLOW_value = 2;
+export const whereExpTypeSites = "RTREGEXP";
+export const whereExpTypeSitesValue = 1;
+export const whereExpTypeRegEx = "REGEXP";
+export const SAML_REQUEST = "SAMLRequest";
+export const SAML_RESPONSE = "SAMLResponse";
+export const LOGLEVEL_LOW = 0;
+export const LOGLEVEL_MEDIUM = 1;
+export const LOGLEVEL_HIGH = 2;
+export const CANCEL_NAVIGATION_REDIRECT_TAMPER = "TAMPER";
+export const CANCEL_NAVIGATION_REDIRECT_POLICIES_PROCESS_EXCEPTION = "POLICIES_PROCESS_EXCEPTION";
+export const CANCEL_NAVIGATION_REDIRECT_POLICIES_PROCESS_EMPTY = "POLICIES_PROCESS_EMPTY";
+export const CANCEL_NAVIGATION_REDIRECT_WRONG_OPENID = "WRONG_OPENID";
+export const CANCEL_NAVIGATION_REDIRECT_WRONG_SAML_AUTH = "WRONG_SAML_AUTH";
+export const CANCEL_NAVIGATION_REDIRECT_POLICY_SYSTEM_EXCEPTION = "POLICY_SYSTEM_EXCEPTION";
+export const CANCEL_NAVIGATION_REDIRECT_SYSTEM_EXCEPTION = "SYSTEM_EXCEPTION";
+export const CANCEL_NAVIGATION_ONLY_CANCEL = "";
+export const OPEN_ID_NO_LOGGED = 0;
+export const OPEN_ID_LOGGED = 1;

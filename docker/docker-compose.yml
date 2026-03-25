@@ -1,0 +1,47 @@
+name: 'redtrust-automations'
+
+services:
+  api-server:
+    container_name: redtrust-api-server
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8008:8008"
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - HOST=0.0.0.0
+      - PORT=8008
+    volumes:
+      # Mount only necessary directories for development
+      - ../logs:/app/logs
+      - ../files:/app/files
+      # Optionally mount specific directories for hot reload during development
+      - ../api:/app/api
+      - ../app:/app/app
+      - ../database:/app/database
+    networks:
+      - redtrust-network
+
+  # Redis service for task queue (if needed)
+  redis:
+    container_name: redtrust-redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - redtrust-network
+
+volumes:
+  redis_data:
+
+networks:
+  redtrust-network:
+    driver: bridge

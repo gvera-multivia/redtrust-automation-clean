@@ -1,0 +1,76 @@
+@startuml Diagrama
+top to bottom direction
+
+package "Robots" {
+    component "DatabaseManager.py" as DatabaseManager
+    component "RedtrustManager.py" as RedtrustManager
+
+    package "RobotAltas" {
+        package "SedesAltas" {
+            component "robotAndalucia.py"
+            component "robotAsturias.py"
+            component "robotAtc.py"
+            component "robotBaleares.py"
+            component "robotBurgos.py"
+            component "robotCastillaLaMancha.py"
+            component "robotCastillaLeon.py"
+            component "robotCeuta.py"
+            component "robotComunidadValenciana.py"
+            component "robotDehu.py"
+            component "robotDgt.py"
+            component "robotEnotum.py"
+            component "robotLaRioja.py"
+            component "robotMadrid.py"
+            component "robotMahon.py"
+            component "robotMelilla.py"
+            component "robotPaisVasco.py"
+            component "robotTerrassa.py"
+            component "robotXaloc.py"
+        }
+    }
+
+    package "RobotDescargas" {
+        package "SedesDescargas" {
+            component "robotDehu.py" as DescDehu
+            component "robotDgt.py" as DescDgt
+            component "robotEnotum.py" as DescEnotum
+        }
+    }
+
+    component "handle_certificate.py" as HandleCertificate
+
+    RobotDescargas -- HandleCertificate
+    RobotAltas -- HandleCertificate
+    
+}
+
+DatabaseManager -- "bd-server" : query
+
+database "bd-server" {
+    frame "Query" {
+        json JSON{
+            "client_id": [
+                {
+                    "client_id": "client_id",
+                    "recipient_name": "recipient_name", 
+                    "email_account": "notificaciones@xvia-serviciosjuridicos.com",
+                    "message_id": "message_id",
+                    "date": "date",
+                    "sede": "sede",
+                    "servicio": "servicio",
+                    "nif": "nif",
+                    "status": "status",
+                    "mail": "sede@mail.es",
+                    "asunto": "asunto",
+                    "client_name": "client_name",
+                    "expediente": "expediente",
+                    "org": "org",
+                    "body_date": "body_date",
+                    "identificador": "identificador",
+                    "link": "link"
+                }
+            ]
+        }
+    }
+}
+@enduml
